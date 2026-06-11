@@ -3,241 +3,379 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>THE CIPHER ARCHITECT - OPERATIONS COMMAND</title>
+    <title>OVERDRIVE COMMAND CENTER // THE ARCHITECT</title>
     <style>
-        /* --- CORE ARCHITECTURE (THE FOUNDATION) --- */
-        body {
-            font-family: 'Courier New', Courier, monospace; /* Moriarty's mathematical precision */
-            background-color: #080808; /* Batman's absolute shadow */
-            background-image: 
-                linear-gradient(rgba(10, 10, 10, 0.95), rgba(10, 10, 10, 0.95)),
-                url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"%3%3Cg fill-rule="evenodd"%3%3Cg fill="%23ffd700" fill-opacity="0.05"%3%3Cpath opacity=".5" d="M96 95h4v1h-4v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9z"/%3%3C/g%3%3C/g%3%3C/svg%3%3C'); /* subtle blueprint/network pattern */
-            color: #d0d0d0; /* Morra's clean, optimal visibility */
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 30px;
-            overflow-x: hidden;
+        @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;700&family=Orbitron:wght@400;700;900&display=swap');
+
+        :root {
+            --bg-color: #030303;
+            --main-gold: #ffd700;
+            --dark-gold: #b38f00;
+            --dim-text: #666;
+            --alert-red: #ff3333;
+            --panel-bg: rgba(10, 10, 10, 0.85);
+            --border-glow: 0 0 15px rgba(255, 215, 0, 0.15);
         }
 
-        /* --- LOGO SECTION --- */
-        #arch-header {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 15px;
-            border-bottom: 2px solid #b38f00; /* Deep gold accent */
-            padding-bottom: 20px;
-            margin-bottom: 40px;
+        * { box-sizing: border-box; }
+        
+        body, html {
+            margin: 0; padding: 0; width: 100%; height: 100%;
+            background-color: var(--bg-color);
+            color: var(--main-gold);
+            font-family: 'Fira Code', monospace;
+            overflow: hidden; /* Prevent native scrolling, use custom panes */
         }
 
-        #arch-logo {
-            width: 50px;
-            height: 50px;
-            fill: #b38f00;
+        /* --- BACKGROUND CANVAS & EFFECTS --- */
+        #network-canvas {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 0; pointer-events: none; opacity: 0.4;
         }
 
-        h1 {
-            color: #b38f00;
-            text-transform: uppercase;
-            letter-spacing: 4px;
-            font-size: 1.6rem;
-            margin: 0;
-            font-weight: 300;
+        .crt-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            background-size: 100% 2px, 3px 100%;
+            z-index: 999; pointer-events: none; opacity: 0.6;
         }
 
-        /* --- AUTHENTICATION & INPUT (THE GATEKEEPER) --- */
-        .admin-panel {
-            background-color: rgba(20, 20, 20, 0.8);
-            padding: 25px;
-            border-radius: 4px;
-            margin-bottom: 40px;
+        /* --- MAIN GRID ARCHITECTURE --- */
+        .hud-wrapper {
+            position: relative; z-index: 10;
+            display: grid;
+            grid-template-columns: 350px 1fr 300px;
+            grid-template-rows: 80px 1fr 200px;
+            gap: 15px; padding: 15px;
+            height: 100vh;
+        }
+
+        .panel {
+            background: var(--panel-bg);
             border: 1px solid #222;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.7);
+            backdrop-filter: blur(5px);
+            position: relative;
+            display: flex; flex-direction: column;
+            overflow: hidden;
+            box-shadow: inset 0 0 20px rgba(0,0,0,1);
         }
 
+        /* Sci-Fi Panel Corners */
+        .panel::before, .panel::after { content: ''; position: absolute; width: 15px; height: 15px; }
+        .panel::before { top: 0; left: 0; border-top: 2px solid var(--dark-gold); border-left: 2px solid var(--dark-gold); }
+        .panel::after { bottom: 0; right: 0; border-bottom: 2px solid var(--dark-gold); border-right: 2px solid var(--dark-gold); }
+
+        .panel-header {
+            background: linear-gradient(90deg, #111, transparent);
+            padding: 10px; font-family: 'Orbitron', sans-serif;
+            font-size: 0.8rem; letter-spacing: 3px;
+            border-bottom: 1px solid #333;
+            text-transform: uppercase; display: flex; justify-content: space-between;
+        }
+
+        /* --- SPECIFIC MODULES --- */
+        /* TOP BAR */
+        .mod-header { grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; border-bottom: 2px solid var(--dark-gold); }
+        .sys-title { font-family: 'Orbitron', sans-serif; font-size: 2rem; font-weight: 900; letter-spacing: 5px; text-shadow: 0 0 10px var(--main-gold); }
+        .sys-clock { font-size: 1.5rem; }
+
+        /* LEFT PANEL: UPLINK & DIAGNOSTICS */
+        .mod-uplink { grid-column: 1; grid-row: 2 / 4; padding: 15px; }
+        
+        .input-group { display: flex; flex-direction: column; gap: 10px; flex-grow: 1; }
         input, textarea {
-            width: 100%;
-            padding: 12px;
-            margin-bottom: 18px;
-            background-color: #1a1a1a;
-            color: #ffd700; /* Distinct data entry color */
-            border: 1px solid #333;
-            border-radius: 2px;
-            box-sizing: border-box;
-            outline: none;
-            transition: 0.2s;
-            font-size: 1rem;
+            background: rgba(0, 0, 0, 0.5); border: 1px solid #444; color: #fff;
+            padding: 12px; font-family: 'Fira Code', monospace; outline: none;
+            transition: all 0.3s;
+        }
+        input:focus, textarea:focus { border-color: var(--main-gold); box-shadow: inset 0 0 10px rgba(255, 215, 0, 0.2); }
+        textarea { height: 200px; resize: none; }
+        
+        button.execute-btn {
+            background: transparent; color: var(--main-gold);
+            border: 1px solid var(--main-gold); padding: 15px;
+            font-family: 'Orbitron', sans-serif; font-weight: bold; letter-spacing: 2px;
+            cursor: pointer; position: relative; overflow: hidden; transition: 0.3s;
+        }
+        button.execute-btn:hover { background: var(--main-gold); color: #000; box-shadow: var(--border-glow); }
+        button.execute-btn:disabled { border-color: #333; color: #555; cursor: not-allowed; }
+
+        /* CENTER PANEL: THE LEDGER */
+        .mod-ledger { grid-column: 2; grid-row: 2 / 4; }
+        .ledger-content { padding: 20px; overflow-y: auto; height: 100%; display: flex; flex-direction: column; gap: 15px; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: #000; }
+        ::-webkit-scrollbar-thumb { background: var(--dark-gold); }
+
+        .entry-card {
+            background: rgba(20, 20, 20, 0.7); border-left: 2px solid var(--dark-gold);
+            padding: 15px; position: relative; transition: 0.2s;
+        }
+        .entry-card:hover { background: rgba(30, 30, 30, 0.9); border-left-color: #fff; }
+        .entry-meta { font-size: 0.75rem; color: var(--dim-text); margin-bottom: 10px; display: flex; justify-content: space-between; border-bottom: 1px dashed #333; padding-bottom: 5px; }
+        .entry-text { font-size: 0.95rem; line-height: 1.6; color: #e0e0e0; white-space: pre-wrap; }
+
+        /* RIGHT PANEL: COGNITIVE CORE & NODE STREAM */
+        .mod-cognitive { grid-column: 3; grid-row: 2; }
+        .quote-box { padding: 15px; font-size: 0.85rem; line-height: 1.5; color: #aaa; font-style: italic; }
+        .quote-author { display: block; margin-top: 10px; color: var(--main-gold); font-weight: bold; font-family: 'Orbitron', sans-serif; font-size: 0.7rem; text-align: right; }
+
+        .mod-terminal { grid-column: 3; grid-row: 3; }
+        .terminal-stream { padding: 10px; font-size: 0.7rem; color: #4caf50; height: 100%; overflow-y: hidden; display: flex; flex-direction: column; justify-content: flex-end; }
+        .log-line { margin-bottom: 5px; opacity: 0.8; }
+        
+        .glitch-text { animation: glitch 1s linear infinite; }
+
+        @keyframes glitch {
+            2%, 64% { transform: translate(2px,0) skew(0deg); }
+            4%, 60% { transform: translate(-2px,0) skew(0deg); }
+            62% { transform: translate(0,0) skew(5deg); }
         }
 
-        input:focus, textarea:focus {
-            border-color: #b38f00;
-            background-color: #222;
-        }
+        #status-display { margin-top: 15px; font-size: 0.8rem; text-align: center; height: 15px; color: var(--alert-red); }
 
-        textarea {
-            height: 120px;
-            resize: vertical;
-            line-height: 1.6;
-        }
-
-        /* The Execute Button (Morra's efficiency) */
-        button {
-            background: linear-gradient(145deg, #222, #111);
-            color: #b38f00;
-            border: 1px solid #333;
-            padding: 12px 25px;
-            font-weight: bold;
-            border-radius: 2px;
-            cursor: pointer;
-            width: 100%;
-            font-size: 1rem;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            transition: 0.3s ease-in-out;
-            box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
-        }
-
-        button:hover {
-            border-color: #b38f00;
-            background: linear-gradient(145deg, #333, #222);
-            box-shadow: 0 0 10px rgba(179, 143, 0, 0.3);
-        }
-
-        button:disabled {
-            color: #444;
-            border-color: #222;
-            cursor: not-allowed;
-            background: #111;
-        }
-
-        #status-msg {
-            color: #ffd700;
-            font-size: 0.9em;
-            text-align: center;
-            margin-top: 15px;
-            font-style: italic;
-        }
-
-        /* --- THE LEDGER (HISTORICAL RECORD) --- */
-        #diary-entries {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        .entry {
-            background-color: #111;
-            padding: 20px;
-            border-radius: 2px;
-            border-left: 3px solid #333;
-            transition: border-color 0.3s;
-        }
-
-        .entry:hover {
-            border-left-color: #b38f00;
-        }
-
-        .date {
-            font-size: 0.8em;
-            color: #888;
-            margin-bottom: 12px;
-            border-bottom: 1px solid #222;
-            padding-bottom: 8px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .text-content {
-            white-space: pre-wrap; 
-            line-height: 1.7;
-            font-family: 'Courier New', Courier, monospace;
-            color: #c0c0c0;
-        }
-
-        #loading {
-            color: #b38f00;
-            font-style: italic;
-            text-align: center;
-            margin-top: 30px;
-            letter-spacing: 2px;
-        }
     </style>
 </head>
 <body>
 
-    <div id="arch-header">
-        <svg id="arch-logo" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
-            <path d="M416 128c0-11.3-9.1-20.4-20.4-20.4H116.4c-11.3 0-20.4 9.1-20.4 20.4v256c0 11.3 9.1 20.4 20.4 20.4h279.1c11.3 0 20.4-9.1 20.4-20.4V128zm-20.4 235.6H116.4V148.4h279.1v215.2z"/>
-            <path d="M256 160c-53 0-96 43-96 96s43 96 96 96 96-43 96-96-43-96-96-96zm0 160c-35.3 0-64-28.7-64-64s28.7-64 64-64 64 28.7 64 64-28.7 64-64 64z"/>
-            <path d="M128 320c0 11.3 9.1 20.4 20.4 20.4h215.2c11.3 0 20.4-9.1 20.4-20.4v-44.4h-32v24.4H160V292.4h-32V320z"/>
-            <path d="M480 32C32 32 32 480 32 480s224-224 224-224 224 224 224 224S480 32 480 32zM256 224s-96 96-96 160h192c0-64-96-160-96-160z"/>
-        </svg>
-        <h1>Operations Command</h1>
-    </div>
+    <canvas id="network-canvas"></canvas>
+    <div class="crt-overlay"></div>
 
-    <div class="admin-panel">
-        <input type="password" id="master-key" placeholder="AUTHENTICATION PROTOCOL KEY">
-        <textarea id="diary-text" placeholder="SECURE CHRONICLE ENTRY - [DATA INPUT STREAM]..."></textarea>
-        <button onclick="addEntry()">Execute Commit to Ledger</button>
-        <p id="status-msg"></p>
-    </div>
+    <div class="hud-wrapper">
+        <div class="panel mod-header">
+            <div class="sys-title">THE ARCHITECT <span style="font-size: 0.8rem; font-family: 'Fira Code'; color: #666;">v3.0.0</span></div>
+            <div class="sys-clock" id="main-clock">00:00:00</div>
+        </div>
 
-    <div id="loading">Cipher protocols initialising. Syncing with central hub...</div>
-    <div id="diary-entries"></div>
+        <div class="panel mod-uplink">
+            <div class="panel-header"><span>[01] UPLINK_NODE</span> <span id="db-status">DISCONNECTED</span></div>
+            <div class="input-group" style="margin-top: 20px;">
+                <input type="password" id="master-key" placeholder="AUTHENTICATION_KEY_REQUIRED">
+                <textarea id="diary-text" placeholder="> Initialize thought sequence...&#10;> Awaiting input stream..."></textarea>
+                <button class="execute-btn" id="submit-btn" onclick="addEntry()">ENCRYPT & COMMIT</button>
+                <div id="status-display"></div>
+            </div>
+            
+            <div style="margin-top: auto; border-top: 1px solid #333; padding-top: 10px; font-size: 0.7rem; color: var(--dim-text);">
+                <div>CPU: <span id="cpu-load">14</span>% | MEM: 0x4FA2</div>
+                <div>SECURE CONNECTION: ESTABLISHED</div>
+            </div>
+        </div>
+
+        <div class="panel mod-ledger">
+            <div class="panel-header"><span>[02] MEMORY_LEDGER</span> <span id="entry-count">0 RECORDS</span></div>
+            <div class="ledger-content" id="diary-entries">
+                <div style="text-align: center; margin-top: 50px; color: #444;" class="glitch-text">SYNCHRONIZING DEEP STORAGE...</div>
+            </div>
+        </div>
+
+        <div class="panel mod-cognitive">
+            <div class="panel-header"><span>[03] COGNITIVE_CORE</span></div>
+            <div class="quote-box" id="quote-display">
+                </div>
+        </div>
+
+        <div class="panel mod-terminal">
+            <div class="panel-header"><span>[04] ALGO_NODE_SIM</span></div>
+            <div class="terminal-stream" id="terminal-stream">
+                </div>
+        </div>
+    </div>
 
     <script>
-        /* --- CORE CONFIGURATION (DO NOT ALTER) --- */
+        // ==========================================
+        // CORE SYSTEM VARIABLES & API ROUTING
+        // ==========================================
         const BIN_ID = "6a2b2c06f5f4af5e29e27ad5"; 
         const API_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
-        
         let currentEntries = [];
 
-        /* Fetch data: Read access is standard protocol */
+        // ==========================================
+        // MORRA'S CRYPTOGRAPHIC TEXT SCRAMBLER
+        // ==========================================
+        class TextScramble {
+            constructor(el) {
+                this.el = el;
+                this.chars = '!<>-_\\/[]{}—=+*^?#________';
+                this.update = this.update.bind(this);
+            }
+            setText(newText) {
+                const oldText = this.el.innerText;
+                const length = Math.max(oldText.length, newText.length);
+                const promise = new Promise((resolve) => this.resolve = resolve);
+                this.queue = [];
+                for (let i = 0; i < length; i++) {
+                    const from = oldText[i] || '';
+                    const to = newText[i] || '';
+                    const start = Math.floor(Math.random() * 40);
+                    const end = start + Math.floor(Math.random() * 40);
+                    this.queue.push({ from, to, start, end });
+                }
+                cancelAnimationFrame(this.frameRequest);
+                this.frame = 0;
+                this.update();
+                return promise;
+            }
+            update() {
+                let output = '';
+                let complete = 0;
+                for (let i = 0, n = this.queue.length; i < n; i++) {
+                    let { from, to, start, end, char } = this.queue[i];
+                    if (this.frame >= end) {
+                        complete++;
+                        output += to;
+                    } else if (this.frame >= start) {
+                        if (!char || Math.random() < 0.28) {
+                            char = this.randomChar();
+                            this.queue[i].char = char;
+                        }
+                        output += `<span style="color:#666">${char}</span>`;
+                    } else {
+                        output += from;
+                    }
+                }
+                this.el.innerHTML = output;
+                if (complete === this.queue.length) {
+                    this.resolve();
+                } else {
+                    this.frameRequest = requestAnimationFrame(this.update);
+                    this.frame++;
+                }
+            }
+            randomChar() {
+                return this.chars[Math.floor(Math.random() * this.chars.length)];
+            }
+        }
+
+        // ==========================================
+        // SYSTEM CLOCKS & FAKE DIAGNOSTICS
+        // ==========================================
+        setInterval(() => {
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('tr-TR', { hour12: false });
+            const ms = String(now.getMilliseconds()).padStart(3, '0');
+            document.getElementById('main-clock').innerText = `${timeStr}:${ms}`;
+            
+            // Fake CPU Fluctuation
+            if(Math.random() > 0.7) {
+                document.getElementById('cpu-load').innerText = Math.floor(Math.random() * 30) + 10;
+            }
+        }, 85);
+
+        // ==========================================
+        // BACKGROUND TERMINAL SIMULATOR (NODE.JS/BINANCE)
+        // ==========================================
+        const termStream = document.getElementById('terminal-stream');
+        const termLogs = [
+            "Fetch: binance.com/api/v3/depth?symbol=BTCUSDT",
+            "Analyzing Polymarket contract thresholds...",
+            "[WARN] Spread divergence detected: 0.04%",
+            "Executing arbitrage payload module...",
+            "WebSocket connected to OrderBook stream.",
+            "Node.js execution cycle completed in 14ms."
+        ];
+
+        setInterval(() => {
+            const log = document.createElement('div');
+            log.className = 'log-line';
+            const rndLog = termLogs[Math.floor(Math.random() * termLogs.length)];
+            const hash = "0x" + Math.random().toString(16).substr(2, 6).toUpperCase();
+            log.innerText = `[${hash}] ${rndLog}`;
+            termStream.appendChild(log);
+            if(termStream.children.length > 6) {
+                termStream.removeChild(termStream.firstChild);
+            }
+        }, 2500);
+
+        // ==========================================
+        // COGNITIVE CORE (PHILOSOPHICAL INJECTIONS)
+        // ==========================================
+        const quotes = [
+            { text: "Her şeyin en iyisini bilmek, hiçbir şey yapmamak için mükemmel bir bahanedir.", author: "F. DOSTOYEVSKY // NOTES FROM UNDERGROUND" },
+            { text: "Yaşama nedeni denilen şey, aynı zamanda çok güzel bir ölme nedenidir.", author: "A. CAMUS // THE MYTH OF SISYPHUS" },
+            { text: "Dünyanın bütün eksikliklerine rağmen, birinin görevini yapması için gereken sessiz cesaret.", author: "H. MELVILLE // MOBY DICK" }
+        ];
+        
+        function rotateQuote() {
+            const display = document.getElementById('quote-display');
+            const rnd = quotes[Math.floor(Math.random() * quotes.length)];
+            display.innerHTML = `<div id="scramble-quote"></div><span class="quote-author">${rnd.author}</span>`;
+            const scrambler = new TextScramble(document.getElementById('scramble-quote'));
+            scrambler.setText(`"${rnd.text}"`);
+        }
+        rotateQuote();
+        setInterval(rotateQuote, 15000); // Change quote every 15s
+
+        // ==========================================
+        // DATA LEDGER LOGIC (API FETCH & PUSH)
+        // ==========================================
         async function fetchEntries() {
+            const dbStatus = document.getElementById('db-status');
             try {
                 const response = await fetch(`${API_URL}/latest`);
                 const data = await response.json();
                 currentEntries = data.record;
-                renderEntries();
+                
+                dbStatus.innerText = "CONNECTED";
+                dbStatus.style.color = "#4caf50";
+                document.getElementById('entry-count').innerText = `${currentEntries.length} RECORDS`;
+                
+                renderEntries(currentEntries);
             } catch (error) {
-                document.getElementById('loading').innerText = "Protocol error: Synchronisation failed.";
+                dbStatus.innerText = "LINK FAILED";
+                dbStatus.style.color = "var(--alert-red)";
+                document.getElementById('diary-entries').innerHTML = "<div style='color:red; text-align:center;'>FATAL ERROR: STORAGE UNREACHABLE</div>";
             }
         }
 
-        /* Visualize the Ledger: Optimal clarity required */
-        function renderEntries() {
+        function renderEntries(entriesArray) {
             const container = document.getElementById('diary-entries');
-            document.getElementById('loading').style.display = 'none';
             container.innerHTML = '';
-
-            [...currentEntries].reverse().forEach(entry => {
-                const div = document.createElement('div');
-                div.className = 'entry';
-                div.innerHTML = `
-                    <div class="date">${entry.date}</div>
-                    <div class="text-content">${entry.text}</div>
+            
+            [...entriesArray].reverse().forEach((entry) => {
+                const card = document.createElement('div');
+                card.className = 'entry-card';
+                
+                // UUID for aesthetic architecture
+                const memHash = "MEM-" + Math.random().toString(36).substr(2, 8).toUpperCase();
+                
+                card.innerHTML = `
+                    <div class="entry-meta">
+                        <span>${entry.date}</span>
+                        <span>[${memHash}]</span>
+                    </div>
+                    <div class="entry-text scramble-target" data-text="${encodeURIComponent(entry.text)}"></div>
                 `;
-                container.appendChild(div);
+                container.appendChild(card);
+            });
+
+            // Apply scramble effect to newly rendered text
+            document.querySelectorAll('.scramble-target').forEach(el => {
+                const decodedText = decodeURIComponent(el.getAttribute('data-text'));
+                const scrambler = new TextScramble(el);
+                scrambler.setText(decodedText);
             });
         }
 
-        /* Commit entry: Authentication standard protocol enforced */
         async function addEntry() {
             const masterKey = document.getElementById('master-key').value;
             const text = document.getElementById('diary-text').value;
-            const statusMsg = document.getElementById('status-msg');
-            const commitBtn = document.querySelector('button');
+            const statusMsg = document.getElementById('status-display');
+            const submitBtn = document.getElementById('submit-btn');
 
             if (!masterKey || !text) {
-                statusMsg.innerText = "Protocol Violation: Authentication and Entry data required.";
+                statusMsg.innerText = "ERR 400: PAYLOAD OR KEY MISSING";
                 return;
             }
 
-            statusMsg.innerText = "Commit in progress. Encrypting data stream...";
-            commitBtn.disabled = true;
+            statusMsg.style.color = "var(--main-gold)";
+            statusMsg.innerText = "ENCRYPTING DATA UPLINK...";
+            submitBtn.disabled = true;
+            submitBtn.innerText = "TRANSMITTING";
 
             const newEntry = {
-                /* Turkish locale preserved for local operations context */
                 date: new Date().toLocaleString('tr-TR'),
                 text: text
             };
@@ -254,25 +392,86 @@
                 });
 
                 if (response.ok) {
-                    statusMsg.innerText = "Protocol Accepted. Ledger Updated.";
+                    statusMsg.style.color = "#4caf50";
+                    statusMsg.innerText = "SUCCESS: BLOCK WRITTEN TO LEDGER";
                     document.getElementById('diary-text').value = ''; 
-                    renderEntries(); 
+                    document.getElementById('entry-count').innerText = `${currentEntries.length} RECORDS`;
+                    renderEntries(currentEntries); 
                 } else {
-                    statusMsg.innerText = "Error: Protocol violation. Key mismatch or data corrupted.";
+                    statusMsg.style.color = "var(--alert-red)";
+                    statusMsg.innerText = "AUTH FAILED: INVALID KEY STRUCTURE";
                     currentEntries.pop(); 
                 }
             } catch (error) {
-                statusMsg.innerText = "Error: Transmission failure. Network compromised?";
+                statusMsg.style.color = "var(--alert-red)";
+                statusMsg.innerText = "ERR 502: UPLINK SEVERED";
                 currentEntries.pop();
             } finally {
-                commitBtn.disabled = false;
-                /* Optional security delay: Clear status after analysis */
-                setTimeout(() => { statusMsg.innerText = ""; }, 3000);
+                submitBtn.disabled = false;
+                submitBtn.innerText = "ENCRYPT & COMMIT";
+                setTimeout(() => { statusMsg.innerText = ""; }, 4000);
             }
         }
 
-        /* Execute initial protocols */
-        fetchEntries();
+        // ==========================================
+        // MORIARTY'S NETWORK CANVAS BACKGROUND
+        // ==========================================
+        const canvas = document.getElementById('network-canvas');
+        const ctx = canvas.getContext('2d');
+        let width, height, particles = [];
+
+        function initCanvas() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+            particles = [];
+            for(let i=0; i<60; i++) {
+                particles.push({
+                    x: Math.random() * width,
+                    y: Math.random() * height,
+                    vx: (Math.random() - 0.5) * 0.5,
+                    vy: (Math.random() - 0.5) * 0.5
+                });
+            }
+        }
+
+        function drawNetwork() {
+            ctx.clearRect(0, 0, width, height);
+            ctx.fillStyle = 'rgba(255, 215, 0, 0.5)';
+            ctx.strokeStyle = 'rgba(255, 215, 0, 0.1)';
+            
+            for(let i=0; i<particles.length; i++) {
+                let p = particles[i];
+                p.x += p.vx; p.y += p.vy;
+                
+                if(p.x < 0 || p.x > width) p.vx *= -1;
+                if(p.y < 0 || p.y > height) p.vy *= -1;
+                
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, 1.5, 0, Math.PI * 2);
+                ctx.fill();
+                
+                for(let j=i+1; j<particles.length; j++) {
+                    let p2 = particles[j];
+                    let dist = Math.hypot(p.x - p2.x, p.y - p2.y);
+                    if(dist < 150) {
+                        ctx.beginPath();
+                        ctx.moveTo(p.x, p.y);
+                        ctx.lineTo(p2.x, p2.y);
+                        ctx.lineWidth = 1 - (dist / 150);
+                        ctx.stroke();
+                    }
+                }
+            }
+            requestAnimationFrame(drawNetwork);
+        }
+
+        window.addEventListener('resize', initCanvas);
+        initCanvas();
+        drawNetwork();
+
+        // INITIATE BOOT SEQUENCE
+        setTimeout(fetchEntries, 1000);
+
     </script>
 </body>
 </html>
