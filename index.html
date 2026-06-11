@@ -3,219 +3,166 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Günlük Panelim</title>
+    <title>Günlüğüm</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #121212;
             color: #e0e0e0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-        }
-        .container {
-            background-color: #1e1e1e;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 8px 16px rgba(0,0,0,0.5);
-            width: 100%;
-            max-width: 400px;
-            border-top: 4px solid #ffd700;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
         }
         h1 {
-            text-align: center;
-            margin-top: 0;
-            font-size: 1.5rem;
+            border-bottom: 2px solid #ffd700;
+            padding-bottom: 10px;
         }
-        .countdown {
-            text-align: center;
-            font-size: 1.1rem;
-            margin-bottom: 25px;
-            padding: 15px;
-            background-color: #2a2a2a;
+        .admin-panel {
+            background-color: #1e1e1e;
+            padding: 20px;
             border-radius: 8px;
-            color: #ffd700;
-        }
-        .todo-input {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-        input[type="text"] {
-            flex: 1;
-            padding: 12px;
+            margin-bottom: 30px;
             border: 1px solid #333;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
             background-color: #2a2a2a;
             color: white;
-            border-radius: 6px;
-            outline: none;
-            font-size: 1rem;
+            border: 1px solid #444;
+            border-radius: 4px;
+            box-sizing: border-box;
         }
-        input[type="text"]:focus {
-            border-color: #ffd700;
+        textarea {
+            height: 100px;
+            resize: vertical;
         }
         button {
-            padding: 10px 15px;
             background-color: #ffd700;
             color: #121212;
             border: none;
-            border-radius: 6px;
-            cursor: pointer;
+            padding: 10px 20px;
             font-weight: bold;
-            transition: background-color 0.2s;
+            border-radius: 4px;
+            cursor: pointer;
         }
         button:hover {
             background-color: #ffea00;
         }
-        ul {
-            list-style-type: none;
-            padding: 0;
-            margin: 0;
+        .entry {
+            background-color: #1e1e1e;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border-left: 4px solid #ffd700;
         }
-        li {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px;
-            background-color: #2a2a2a;
-            margin-bottom: 8px;
-            border-radius: 6px;
-            transition: 0.2s;
+        .date {
+            font-size: 0.8em;
+            color: #888;
+            margin-bottom: 10px;
         }
-        li.completed .task-text {
-            text-decoration: line-through;
-            color: #666;
-        }
-        .delete-btn {
-            background-color: #ff4c4c;
-            color: white;
-            padding: 6px 10px;
-            font-size: 0.8rem;
-        }
-        .delete-btn:hover {
-            background-color: #ff1c1c;
-        }
-        .task-text {
-            cursor: pointer;
-            flex: 1;
-            user-select: none;
+        #loading {
+            color: #ffd700;
+            font-style: italic;
         }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h1>Günlük Planlayıcı</h1>
+    <h1>Kişisel Günlüğüm</h1>
 
-    <div class="countdown" id="yks-countdown">
-        Hesaplanıyor...
+    <div class="admin-panel">
+        <h3>Yeni Giriş Ekle (Sadece Yetkili)</h3>
+        <input type="password" id="master-key" placeholder="Master Key (Şifren)">
+        <textarea id="diary-text" placeholder="Bugün neler oldu?"></textarea>
+        <button onclick="addEntry()">Günlüğe Kaydet</button>
+        <p id="status-msg" style="color: #ffd700; font-size: 0.9em;"></p>
     </div>
 
-    <div class="todo-input">
-        <input type="text" id="task-input" placeholder="Yeni bir görev ekle...">
-        <button onclick="addTask()">Ekle</button>
-    </div>
+    <div id="loading">Günlükler yükleniyor...</div>
+    <div id="diary-entries"></div>
 
-    <ul id="task-list"></ul>
-</div>
+    <script>
+        // 1. ADIMDA ALDIĞIN BIN ID'Yİ BURAYA YAPIŞTIR
+        const BIN_ID = "6a2b29d6da38895dfeb0ea40"; 
+        
+        const API_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
+        let currentEntries = [];
 
-<script>
-    // YKS 2026 Geri Sayım (20 Haziran 2026)
-    const targetDate = new Date("June 20, 2026 10:15:00").getTime();
-
-    function updateCountdown() {
-        const now = new Date().getTime();
-        const distance = targetDate - now;
-
-        if (distance < 0) {
-            document.getElementById("yks-countdown").innerHTML = "Sınav Zamanı!";
-            return;
+        // Sayfa açıldığında verileri çek (Okuma işlemi herkese açıktır, şifre gerektirmez)
+        async function fetchEntries() {
+            try {
+                const response = await fetch(`${API_URL}/latest`);
+                const data = await response.json();
+                currentEntries = data.record;
+                renderEntries();
+            } catch (error) {
+                document.getElementById('loading').innerText = "Veriler çekilirken hata oluştu. Bin ID'ni kontrol et.";
+            }
         }
 
-        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        // Günlükleri ekrana yazdır
+        function renderEntries() {
+            const container = document.getElementById('diary-entries');
+            document.getElementById('loading').style.display = 'none';
+            container.innerHTML = '';
 
-        document.getElementById("yks-countdown").innerHTML =
-            `YKS 2026'ya Kalan: <br><br><b>${days} Gün ${hours} Saat ${minutes} Dk</b>`;
-    }
+            // En yeni kayıt en üstte görünsün diye ters çeviriyoruz
+            [...currentEntries].reverse().forEach(entry => {
+                const div = document.createElement('div');
+                div.className = 'entry';
+                div.innerHTML = `<div class="date">${entry.date}</div><div>${entry.text}</div>`;
+                container.appendChild(div);
+            });
+        }
 
-    setInterval(updateCountdown, 60000);
-    updateCountdown();
+        // Yeni yazı ekleme (Yazma işlemi Master Key gerektirir)
+        async function addEntry() {
+            const masterKey = document.getElementById('master-key').value;
+            const text = document.getElementById('diary-text').value;
+            const statusMsg = document.getElementById('status-msg');
 
-    // Yapılacaklar Listesi (Tarayıcı hafızasına - LocalStorage - kaydeder)
-    const taskInput = document.getElementById('task-input');
-    const taskList = document.getElementById('task-list');
+            if (!masterKey || !text) {
+                statusMsg.innerText = "Lütfen hem şifreni hem de günlük metnini gir.";
+                return;
+            }
 
-    document.addEventListener('DOMContentLoaded', loadTasks);
+            statusMsg.innerText = "Kaydediliyor...";
 
-    taskInput.addEventListener('keypress', function (e) {
-        if (e.key === 'Enter') addTask();
-    });
+            // Yeni kaydı listeye ekle
+            const newEntry = {
+                date: new Date().toLocaleString('tr-TR'),
+                text: text
+            };
+            currentEntries.push(newEntry);
 
-    function addTask() {
-        const taskText = taskInput.value.trim();
-        if (taskText === "") return;
+            // Veritabanını güncelle
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Master-Key': masterKey
+                    },
+                    body: JSON.stringify(currentEntries)
+                });
 
-        const task = { text: taskText, completed: false };
-        saveTaskToLocal(task);
-        renderTask(task);
-        taskInput.value = "";
-    }
+                if (response.ok) {
+                    statusMsg.innerText = "Başarıyla kaydedildi!";
+                    document.getElementById('diary-text').value = ''; // Kutuyu temizle
+                    renderEntries(); // Ekranı güncelle
+                } else {
+                    statusMsg.innerText = "Hata! Şifreni (Master Key) yanlış girmiş olabilirsin.";
+                    currentEntries.pop(); // Hata verdiyse son ekleneni listeden geri al
+                }
+            } catch (error) {
+                statusMsg.innerText = "Bağlantı hatası oluştu.";
+            }
+        }
 
-    function renderTask(task) {
-        const li = document.createElement('li');
-        if (task.completed) li.classList.add('completed');
-
-        const span = document.createElement('span');
-        span.textContent = task.text;
-        span.className = 'task-text';
-        span.onclick = () => toggleTask(li, task.text);
-
-        const deleteBtn = document.createElement('button');
-        deleteBtn.textContent = 'Sil';
-        deleteBtn.className = 'delete-btn';
-        deleteBtn.onclick = () => removeTask(li, task.text);
-
-        li.appendChild(span);
-        li.appendChild(deleteBtn);
-        taskList.appendChild(li);
-    }
-
-    function saveTaskToLocal(task) {
-        let tasks = getTasksFromLocal();
-        tasks.push(task);
-        localStorage.setItem('dailyTasks', JSON.stringify(tasks));
-    }
-
-    function getTasksFromLocal() {
-        return localStorage.getItem('dailyTasks') ? JSON.parse(localStorage.getItem('dailyTasks')) : [];
-    }
-
-    function loadTasks() {
-        const tasks = getTasksFromLocal();
-        tasks.forEach(task => renderTask(task));
-    }
-
-    function toggleTask(li, taskText) {
-        li.classList.toggle('completed');
-        let tasks = getTasksFromLocal();
-        tasks = tasks.map(task => {
-            if (task.text === taskText) task.completed = !task.completed;
-            return task;
-        });
-        localStorage.setItem('dailyTasks', JSON.stringify(tasks));
-    }
-
-    function removeTask(li, taskText) {
-        li.remove();
-        let tasks = getTasksFromLocal();
-        tasks = tasks.filter(task => task.text !== taskText);
-        localStorage.setItem('dailyTasks', JSON.stringify(tasks));
-    }
-</script>
-
+        // Başlangıçta verileri çek
+        fetchEntries();
+    </script>
 </body>
 </html>
