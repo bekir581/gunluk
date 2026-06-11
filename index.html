@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Günlük Panelim</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #121212;
+            color: #e0e0e0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background-color: #1e1e1e;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.5);
+            width: 100%;
+            max-width: 400px;
+            border-top: 4px solid #ffd700;
+        }
+        h1 {
+            text-align: center;
+            margin-top: 0;
+            font-size: 1.5rem;
+        }
+        .countdown {
+            text-align: center;
+            font-size: 1.1rem;
+            margin-bottom: 25px;
+            padding: 15px;
+            background-color: #2a2a2a;
+            border-radius: 8px;
+            color: #ffd700;
+        }
+        .todo-input {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        input[type="text"] {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #333;
+            background-color: #2a2a2a;
+            color: white;
+            border-radius: 6px;
+            outline: none;
+            font-size: 1rem;
+        }
+        input[type="text"]:focus {
+            border-color: #ffd700;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #ffd700;
+            color: #121212;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+        button:hover {
+            background-color: #ffea00;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+        li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background-color: #2a2a2a;
+            margin-bottom: 8px;
+            border-radius: 6px;
+            transition: 0.2s;
+        }
+        li.completed .task-text {
+            text-decoration: line-through;
+            color: #666;
+        }
+        .delete-btn {
+            background-color: #ff4c4c;
+            color: white;
+            padding: 6px 10px;
+            font-size: 0.8rem;
+        }
+        .delete-btn:hover {
+            background-color: #ff1c1c;
+        }
+        .task-text {
+            cursor: pointer;
+            flex: 1;
+            user-select: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Günlük Planlayıcı</h1>
+
+    <div class="countdown" id="yks-countdown">
+        Hesaplanıyor...
+    </div>
+
+    <div class="todo-input">
+        <input type="text" id="task-input" placeholder="Yeni bir görev ekle...">
+        <button onclick="addTask()">Ekle</button>
+    </div>
+
+    <ul id="task-list"></ul>
+</div>
+
+<script>
+    // YKS 2026 Geri Sayım (20 Haziran 2026)
+    const targetDate = new Date("June 20, 2026 10:15:00").getTime();
+
+    function updateCountdown() {
+        const now = new Date().getTime();
+        const distance = targetDate - now;
+
+        if (distance < 0) {
+            document.getElementById("yks-countdown").innerHTML = "Sınav Zamanı!";
+            return;
+        }
+
+        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+
+        document.getElementById("yks-countdown").innerHTML =
+            `YKS 2026'ya Kalan: <br><br><b>${days} Gün ${hours} Saat ${minutes} Dk</b>`;
+    }
+
+    setInterval(updateCountdown, 60000);
+    updateCountdown();
+
+    // Yapılacaklar Listesi (Tarayıcı hafızasına - LocalStorage - kaydeder)
+    const taskInput = document.getElementById('task-input');
+    const taskList = document.getElementById('task-list');
+
+    document.addEventListener('DOMContentLoaded', loadTasks);
+
+    taskInput.addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') addTask();
+    });
+
+    function addTask() {
+        const taskText = taskInput.value.trim();
+        if (taskText === "") return;
+
+        const task = { text: taskText, completed: false };
+        saveTaskToLocal(task);
+        renderTask(task);
+        taskInput.value = "";
+    }
+
+    function renderTask(task) {
+        const li = document.createElement('li');
+        if (task.completed) li.classList.add('completed');
+
+        const span = document.createElement('span');
+        span.textContent = task.text;
+        span.className = 'task-text';
+        span.onclick = () => toggleTask(li, task.text);
+
+        const deleteBtn = document.createElement('button');
+        deleteBtn.textContent = 'Sil';
+        deleteBtn.className = 'delete-btn';
+        deleteBtn.onclick = () => removeTask(li, task.text);
+
+        li.appendChild(span);
+        li.appendChild(deleteBtn);
+        taskList.appendChild(li);
+    }
+
+    function saveTaskToLocal(task) {
+        let tasks = getTasksFromLocal();
+        tasks.push(task);
+        localStorage.setItem('dailyTasks', JSON.stringify(tasks));
+    }
+
+    function getTasksFromLocal() {
+        return localStorage.getItem('dailyTasks') ? JSON.parse(localStorage.getItem('dailyTasks')) : [];
+    }
+
+    function loadTasks() {
+        const tasks = getTasksFromLocal();
+        tasks.forEach(task => renderTask(task));
+    }
+
+    function toggleTask(li, taskText) {
+        li.classList.toggle('completed');
+        let tasks = getTasksFromLocal();
+        tasks = tasks.map(task => {
+            if (task.text === taskText) task.completed = !task.completed;
+            return task;
+        });
+        localStorage.setItem('dailyTasks', JSON.stringify(tasks));
+    }
+
+    function removeTask(li, taskText) {
+        li.remove();
+        let tasks = getTasksFromLocal();
+        tasks = tasks.filter(task => task.text !== taskText);
+        localStorage.setItem('dailyTasks', JSON.stringify(tasks));
+    }
+</script>
+
+</body>
+</html>
